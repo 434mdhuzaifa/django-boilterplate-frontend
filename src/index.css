@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.active{
+    font-weight: 700;
+    text-decoration: underline;
+    color: rgb(52, 52, 126);
+}
