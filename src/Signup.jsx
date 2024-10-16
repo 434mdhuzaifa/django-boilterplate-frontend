@@ -1,18 +1,40 @@
 import { Button, Card, Form, Input } from "antd";
 import { useForm } from "antd/es/form/Form";
 import { Link } from "react-router-dom";
-import { useUserData } from "./store";
+import { useMutation } from "@tanstack/react-query";
+import customAxios from "./useAxios";
+import toast from "react-hot-toast";
 const Signup = () => {
-  const {user,setUser}=useUserData()
+  const caxios = customAxios();
+  const mutateSignUp = useMutation({
+    mutationFn: async (data) => {
+      const result = await caxios.post("/user/", data);
+      return result.data;
+    },
+    onError: (res) => {
+      let error = [];
+      res.response.data.forEach((x) => {
+        error.push({
+          name: [x.key],
+          errors: [x.msg],
+        });
+      });
+      form.setFields(error);
+    },
+    onSuccess: (res) => {
+      toast.success(res.msg);
+      form.resetFields();
+    },
+  });
   const [form] = useForm();
-  function onFinish(v) {
-    console.log(v);
+  async function onFinish(v) {
+    await mutateSignUp.mutateAsync(v);
   }
   return (
     <div className="flex justify-center items-center h-[90vh]">
       <Card className="w-[500px] shadow-xl">
         <Form form={form} onFinish={onFinish} layout="vertical">
-        <div className="flex gap-2">
+          <div className="flex gap-2">
             <Form.Item className="flex-1" label="First Name" name="first_name">
               <Input></Input>
             </Form.Item>
@@ -20,25 +42,48 @@ const Signup = () => {
               <Input></Input>
             </Form.Item>
           </div>
-          <Form.Item label="Username" name="username" rules={[{required:true}]}>
+          <Form.Item
+            label="Username"
+            name="username"
+            rules={[{ required: true }, { min: 4 }]}
+          >
             <Input></Input>
           </Form.Item>
-          <Form.Item label="Password" name="password1" rules={[{required:true}]}>
+          <Form.Item
+            label="Password"
+            name="password1"
+            rules={[{ required: true }, { min: 6 }]}
+          >
             <Input.Password></Input.Password>
           </Form.Item>
-          <Form.Item label="Confirm Password" name="password2" rules={[{required:true}]}>
+          <Form.Item
+            label="Confirm Password"
+            name="password2"
+            rules={[{ required: true }, { min: 6 }]}
+          >
             <Input.Password></Input.Password>
           </Form.Item>
-          <Form.Item rules={[{required:true}]} label="Email" name="email">
+          <Form.Item
+            rules={[{ required: true }, { min: 3 }]}
+            label="Email"
+            name="email"
+          >
             <Input type="email"></Input>
           </Form.Item>
           <div className="flex justify-center">
             <Form.Item>
-              <Button htmlType="submit">Login</Button>
+              <Button htmlType="submit" loading={mutateSignUp.isPending}>
+                Login
+              </Button>
             </Form.Item>
           </div>
         </Form>
-        <Link className="flex justify-center text-blue-400 font-semibold" to="/">Login</Link>
+        <Link
+          className="flex justify-center text-blue-400 font-semibold"
+          to="/"
+        >
+          Login
+        </Link>
       </Card>
     </div>
   );
