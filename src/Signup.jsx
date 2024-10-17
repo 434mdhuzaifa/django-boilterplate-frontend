@@ -6,35 +6,47 @@ import customAxios from "./useAxios";
 import toast from "react-hot-toast";
 import { useUserData } from "./store";
 const Signup = () => {
-  const { user } = useUserData();
+  const { user,setUser } = useUserData();
   const caxios = customAxios();
   const mutateSignUp = useMutation({
     mutationFn: async (data) => {
-      let result = await caxios.post("/user/", data);
+      let result = null
       if (user == null) {
         result = await caxios.post("/user/", data);
       } else {
         result = await caxios.put(`/user/${user?.id}/`, data);
       }
-      return result.data;
+      if (result) {
+        return result.data;
+      }
+      return result
     },
     onError: (res) => {
-      if (res.response.data.msg) {
-        toast.error(res.response.data.msg);
-      } else {
-        let error = [];
-        res.response.data.forEach((x) => {
-          error.push({
-            name: [x.key],
-            errors: [x.msg],
+      if (res.response?.data) {
+        if (res.response.data.msg) {
+          toast.error(res.response.data.msg);
+        } else {
+          let error = [];
+          res.response.data.forEach((x) => {
+            error.push({
+              name: [x.key],
+              errors: [x.msg],
+            });
           });
-        });
-        form.setFields(error);
+          form.setFields(error);
+        }
+      } else {
+        toast.error(res.message);
       }
     },
     onSuccess: (res) => {
-      toast.success(res.msg);
-      form.resetFields();
+      if (user!=null) {
+        setUser(res)
+      toast.success("User information updated")
+      }else{
+        toast.success(res.msg);
+        form.resetFields()
+      }
     },
   });
   const [form] = useForm();

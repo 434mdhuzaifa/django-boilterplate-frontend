@@ -5,21 +5,23 @@ import { Button } from "antd";
 
 function App() {
   const { user, setUser } = useUserData();
-  const navigate=useNavigate()
+  const navigate = useNavigate();
   function onClick() {
     setUser(null);
-    navigate("/")
+    navigate("/");
   }
   return (
     <div>
       <Toaster position="top-right" reverseOrder={false}></Toaster>
       <nav>
         <ul className="flex justify-center gap-4 mt-1 items-center">
+          {user == null && (
+            <li>
+              <NavLink to={"/"}>Login</NavLink>
+            </li>
+          )}
           <li>
-            <NavLink to={"/"}>Login</NavLink>
-          </li>
-          <li>
-            <NavLink to={"/signup"}>Signup</NavLink>
+            <NavLink to={"/signup"}>{user==null?"Sign Up":"Update User"}</NavLink>
           </li>
           {user != null && (
             <li>

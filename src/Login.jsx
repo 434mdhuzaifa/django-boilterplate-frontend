@@ -4,38 +4,50 @@ import { Link, useNavigate } from "react-router-dom";
 import customAxios from "./useAxios";
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { useUserData } from "./store";
+import {  useUserData } from "./store";
 
 const Login = () => {
   const { setUser } = useUserData();
   const caxios = customAxios();
   const [form] = useForm();
-  const navigate=useNavigate()
+  const navigate = useNavigate();
+
   const mutateLogin = useMutation({
     mutationFn: async (data) => {
       const result = await caxios.post("/userlogin/", data);
       return result.data;
     },
     onError: (res) => {
-      let error = [];
-      res.response.data.forEach((x) => {
-        error.push({
-          name: [x.key],
-          errors: [x.msg],
-        });
-      });
-      form.setFields(error);
+      if (res.response?.data) {
+        if (res.response.data.msg) {
+          toast.error(res.response.data.msg);
+        } else {
+          let error = [];
+          res.response.data.forEach((x) => {
+            error.push({
+              name: [x.key],
+              errors: [x.msg],
+            });
+          });
+          form.setFields(error);
+        }
+      } else {
+        toast.error(res.message);
+      }
     },
     onSuccess: (res) => {
       setUser(res);
       toast.success("Login success");
       form.resetFields();
-      navigate("/signup")
+      // navigate("/signup")
     },
   });
 
   async function onFinish(v) {
     await mutateLogin.mutateAsync(v);
+    if (mutateLogin.isSuccess) {
+      // await mutateJWT.mutateAsync(v);
+    }
   }
   return (
     <div className="flex justify-center items-center h-[90vh]">
@@ -57,7 +69,9 @@ const Login = () => {
           </Form.Item>
           <div className="flex justify-center">
             <Form.Item>
-              <Button htmlType="submit" loading={mutateLogin.isPending}>Login</Button>
+              <Button htmlType="submit" loading={mutateLogin.isPending}>
+                Login
+              </Button>
             </Form.Item>
           </div>
         </Form>
