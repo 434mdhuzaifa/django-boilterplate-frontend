@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 export const useUserData = create((set) => ({
   user: null,
-  setUser: (data) => set(() => ({ user: data })),
+  setUser: (data) => {
+    return set({ user: data });
+  },
 }));
-
-

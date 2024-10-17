@@ -1,12 +1,44 @@
 import { Button, Card, Form, Input } from "antd";
 import { useForm } from "antd/es/form/Form";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import customAxios from "./useAxios";
+import { useMutation } from "@tanstack/react-query";
+import { useUserData } from "./store";
+import toast from "react-hot-toast";
 
 const ResetPassword = () => {
+  const { setUser } = useUserData();
+  const navigate = useNavigate();
+  const caxios = customAxios();
   const [searchParams] = useSearchParams();
   const [form] = useForm();
-  function onFinish(v) {
-    console.log(v);
+  const mutationResetPass = useMutation({
+    mutationFn: async (data) => {
+      const result = await caxios.post("/reset-password-data/", data);
+      return result.data;
+    },
+    onError: (res) => {
+      if (res.response.data.msg) {
+        toast.error(res.response.data.msg);
+      } else {
+        let error = [];
+        res.response.data.forEach((x) => {
+          error.push({
+            name: [x.key],
+            errors: [x.msg],
+          });
+        });
+        form.setFields(error);
+      }
+    },
+    onSuccess: (res) => {
+      setUser(res.data);
+      toast.success("Password Reseted");
+      navigate("/");
+    },
+  });
+  async function onFinish(v) {
+    await mutationResetPass.mutateAsync(v);
   }
   return (
     <div className="flex justify-center items-center h-[90vh]">
@@ -31,14 +63,14 @@ const ResetPassword = () => {
           <Form.Item
             label="Password"
             name="password1"
-            rules={[{ required: true }]}
+            rules={[{ required: true },{min:6}]}
           >
             <Input.Password></Input.Password>
           </Form.Item>
           <Form.Item
             label="Confirm Password"
             name="password2"
-            rules={[{ required: true }]}
+            rules={[{ required: true },{min:6}]}
           >
             <Input.Password></Input.Password>
           </Form.Item>
