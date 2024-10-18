@@ -13,14 +13,14 @@ const MailRequest = () => {
       return result.data;
     },
     onError: (res) => {
-      if (res.response.data.msg) {
-        toast.error(res.response.data.msg);
+      if (res.response.data.detail) {
+        toast.error(res.response.data.detail);
       } else {
         let error = [];
         res.response.data.forEach((x) => {
           error.push({
             name: [x.key],
-            errors: [x.msg],
+            errors: [x.detail],
           });
         });
         form.setFields(error);

@@ -14,3 +14,10 @@ export const useUserData = create(
     }
   )
 );
+
+export const access_token = create(
+  persist((set) => ({
+    token: null,
+    setToken: (data) => set({ token: data }),
+  }))
+);

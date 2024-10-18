@@ -23,14 +23,14 @@ const Signup = () => {
     },
     onError: (res) => {
       if (res.response?.data) {
-        if (res.response.data.msg) {
-          toast.error(res.response.data.msg);
+        if (res.response.data.detail) {
+          toast.error(res.response.data.detail);
         } else {
           let error = [];
           res.response.data.forEach((x) => {
             error.push({
               name: [x.key],
-              errors: [x.msg],
+              errors: [x.detail],
             });
           });
           form.setFields(error);
@@ -44,7 +44,7 @@ const Signup = () => {
         setUser(res)
       toast.success("User information updated")
       }else{
-        toast.success(res.msg);
+        toast.success(res.detail);
         form.resetFields()
       }
     },

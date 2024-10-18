@@ -19,14 +19,14 @@ const Login = () => {
     },
     onError: (res) => {
       if (res.response?.data) {
-        if (res.response.data.msg) {
-          toast.error(res.response.data.msg);
+        if (res.response.data.detail) {
+          toast.error(res.response.data.detail);
         } else {
           let error = [];
           res.response.data.forEach((x) => {
             error.push({
               name: [x.key],
-              errors: [x.msg],
+              errors: [x.detail],
             });
           });
           form.setFields(error);
@@ -39,15 +39,12 @@ const Login = () => {
       setUser(res);
       toast.success("Login success");
       form.resetFields();
-      // navigate("/signup")
+      navigate("/signup")
     },
   });
 
   async function onFinish(v) {
     await mutateLogin.mutateAsync(v);
-    if (mutateLogin.isSuccess) {
-      // await mutateJWT.mutateAsync(v);
-    }
   }
   return (
     <div className="flex justify-center items-center h-[90vh]">
